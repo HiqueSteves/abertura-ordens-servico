@@ -1,8 +1,16 @@
 package br.com.ordensservico.aberturaordensservico.dto;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+
 public class EquipamentoRequest {
+    @NotNull
     private Integer setorId;
+
+    @NotBlank
     private String nome;
+
+    @NotBlank
     private String numeroPatrimonio;
 
     public EquipamentoRequest() {
@@ -13,6 +21,7 @@ public class EquipamentoRequest {
         return setorId;
     }
 
+     
     public void setSetorId(Integer setorId) {
         this.setorId = setorId;
     }
@@ -20,7 +29,7 @@ public class EquipamentoRequest {
     public String getNome() {
         return nome;
     }
-
+    
     public void setNome(String nome) {
         this.nome = nome;
     }
