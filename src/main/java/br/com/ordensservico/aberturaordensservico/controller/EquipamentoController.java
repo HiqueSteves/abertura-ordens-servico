@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import br.com.ordensservico.aberturaordensservico.dto.EquipamentoRequest;
 import br.com.ordensservico.aberturaordensservico.model.Equipamento;
 import br.com.ordensservico.aberturaordensservico.service.EquipamentoService;
 
@@ -30,28 +31,36 @@ public class EquipamentoController {
     }
 
     @PostMapping
-    public ResponseEntity<Equipamento> cadastrar(
-            @Valid @RequestBody Equipamento equipamento) {
+    public ResponseEntity<Equipamento> cadastrar(@Valid @RequestBody EquipamentoRequest request) {
 
-        Equipamento equipamentoCadastrado = equipamentoService.cadastrar(equipamento);
+        Integer setorId = request.getSetorId();
+        String nome = request.getNome();
+        String numeroPatrimonio = request.getNumeroPatrimonio();
+
+        if (setorId == null || nome == null || numeroPatrimonio == null) {
+            return ResponseEntity.badRequest().build();
+        }
+
+
+        Optional<Equipamento> equipamentoSalvo = equipamentoService.cadastrar(setorId, nome, numeroPatrimonio);
+
+        if (equipamentoSalvo.isEmpty()) {
+            return ResponseEntity.badRequest().build();
+        }
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(equipamentoCadastrado);
-
+                .body(equipamentoSalvo.get());
     }
 
     @GetMapping
     public ResponseEntity<List<Equipamento>> listar() {
-
         List<Equipamento> equipamentos = equipamentoService.listar();
-
         return ResponseEntity.ok(equipamentos);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Equipamento> buscarPorId(
-            @PathVariable Integer id) {
+    public ResponseEntity<Equipamento> buscarPorId(@PathVariable Integer id) {
         Optional<Equipamento> equipamento = equipamentoService.buscarPorId(id);
 
         if (equipamento.isPresent()) {
@@ -72,13 +81,10 @@ public class EquipamentoController {
         }
 
         return ResponseEntity.notFound().build();
-
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> excluir(
-            @PathVariable Integer id) {
-
+    public ResponseEntity<Void> excluir(@PathVariable Integer id) {
         boolean excluido = equipamentoService.excluir(id);
 
         if (excluido) {
@@ -87,5 +93,4 @@ public class EquipamentoController {
 
         return ResponseEntity.notFound().build();
     }
-
 }

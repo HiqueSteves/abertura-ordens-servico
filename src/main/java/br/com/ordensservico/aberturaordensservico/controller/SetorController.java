@@ -56,7 +56,6 @@ public class SetorController {
         if (setor.isPresent()) {
             return ResponseEntity.ok(setor.get());
         }
-
         return ResponseEntity.notFound().build();
     }
 
