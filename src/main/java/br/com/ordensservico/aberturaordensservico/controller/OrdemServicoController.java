@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import br.com.ordensservico.aberturaordensservico.dto.EncerramentoOrdemServicoRequest;
 import br.com.ordensservico.aberturaordensservico.dto.OrdemServicoRequest;
 import br.com.ordensservico.aberturaordensservico.model.OrdemServico;
 import br.com.ordensservico.aberturaordensservico.service.OrdemServicoService;
@@ -69,6 +71,18 @@ public ResponseEntity<OrdemServico> cadastrar(@Valid @RequestBody OrdemServicoRe
         return ResponseEntity.notFound().build();
     }
 
+    @GetMapping ("/ordens-servico")
+    public ResponseEntity<List<OrdemServico>> listarOrdensServico() {
+        List<OrdemServico> ordensServico = ordemServicoService.listarAbertas();
+        return ResponseEntity.ok(ordensServico);
+    }
+    
+    @GetMapping ("/ordens-servico/abertas")
+    public ResponseEntity<List<OrdemServico>> listarOrdensServicoAbertas() {
+        List<OrdemServico> ordensServicoAbertas = ordemServicoService.listarAbertas();
+        return ResponseEntity.ok(ordensServicoAbertas);
+    }    
+
     @PutMapping("/{id}")
     public ResponseEntity<OrdemServico> atualizar(
             @PathVariable Integer id,
@@ -82,14 +96,16 @@ public ResponseEntity<OrdemServico> cadastrar(@Valid @RequestBody OrdemServicoRe
         return ResponseEntity.notFound().build();
     }
 
-    /*@DeleteMapping("/{id}")
-    public ResponseEntity<Void> excluir(@PathVariable Integer id) {
-        boolean excluido = ordemServicoService.excluir(id);
+    @PatchMapping("/{id}/encerramento") 
+    public ResponseEntity<OrdemServico> encerrar(
+            @PathVariable Integer id,
+            @Valid @RequestBody EncerramentoOrdemServicoRequest dados) {
+        Optional<OrdemServico> ordemServicoEncerrada = ordemServicoService.encerrar(id, dados);
 
-        if (excluido) {
-            return ResponseEntity.noContent().build();
+        if (ordemServicoEncerrada.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
 
-        return ResponseEntity.notFound().build();
-    }*/
+        return ResponseEntity.ok(ordemServicoEncerrada.get());
+    }
 }

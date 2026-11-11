@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
+//import org.springframework.http.HttpStatus;
+//import org.springframework.web.server.ResponseStatusException;
 
 import br.com.ordensservico.aberturaordensservico.model.Equipamento;
 import br.com.ordensservico.aberturaordensservico.model.Setor;
@@ -50,6 +52,16 @@ public class EquipamentoService {
             return Optional.empty();
         }
 
+        /*boolean ordemServicoAberta = equipamentoRepository.
+        existsByEquipamentoIdAndDataEncerramentoIsNull(id);
+
+        if (ordemServicoAberta) {
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    "Já possui uma ordem de serviço aberta.");
+        }*/
+        
+        
         Equipamento equipamento = equipamentoEncontrado.get();
 
         equipamento.setNome(novosDados.getNome());

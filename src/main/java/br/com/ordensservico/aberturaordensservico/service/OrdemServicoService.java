@@ -4,8 +4,11 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
+import br.com.ordensservico.aberturaordensservico.dto.EncerramentoOrdemServicoRequest;
 import br.com.ordensservico.aberturaordensservico.model.Equipamento;
 import br.com.ordensservico.aberturaordensservico.model.OrdemServico;
 import br.com.ordensservico.aberturaordensservico.repository.EquipamentoRepository;
@@ -31,6 +34,8 @@ public class OrdemServicoService {
         ordemServico.setEquipamento(equipamentoOpt.get());
         ordemServico.setDescricao(descricao);
         ordemServico.setDataAbertura(LocalDateTime.now());
+        ordemServico.setDataEncerramento(null);
+        ordemServico.setSolucao(null);
 
         return Optional.of(ordemServicoRepository.save(ordemServico));
     }
@@ -57,4 +62,38 @@ public class OrdemServicoService {
 
         return Optional.of(ordemServicoRepository.save(ordemServico));
     }
+
+    public Optional<OrdemServico> encerrar(Integer id, EncerramentoOrdemServicoRequest dados) {
+        Optional<OrdemServico> ordemServicoEncontrada = ordemServicoRepository.findById(id);
+
+        if (ordemServicoEncontrada.isEmpty()) {
+            return Optional.empty();
+        }
+
+       boolean ordemServicoAberta = ordemServicoRepository.
+       existsByIdAndDataEncerramentoIsNotNull(id);
+
+       if(ordemServicoAberta) {
+            throw new ResponseStatusException(
+                HttpStatus.CONFLICT,
+                "A ordem de serviço já está encerrada.");
+        }
+
+        OrdemServico ordemServico = ordemServicoEncontrada.get();
+
+        ordemServico.setSolucao(dados.getSolucao());
+        ordemServico.setDataEncerramento(LocalDateTime.now());
+
+        return Optional.of(ordemServicoRepository.save(ordemServico));
+    }
+
+    public List<OrdemServico> listarAbertas() {
+        return ordemServicoRepository.findByDataEncerramentoIsNull();
+    }
+    
+    public List<OrdemServico> listarEncerradas() {
+        return ordemServicoRepository.findByDataEncerramentoIsNotNull();
+    }
+
+  
 }
